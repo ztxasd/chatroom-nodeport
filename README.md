@@ -1,6 +1,6 @@
 ## chatroom-nodeport
 
-项目 [chatroom](https://github.com/Dreamersseve/chatroom/tree/master) 的node移植
+项目 [chatroom](https://github.com/Dreamersseve/chatroom/tree/master) 的node移植，基于 express 框架
 
 ### TODO
 * 添加注册功能
