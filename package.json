@@ -1,0 +1,17 @@
+{
+  "name": "chatroom-nodeport",
+  "version": "0.0.1",
+  "description": "Node port of the project 'chatroom'",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "author": "ztxasd",
+  "license": "MIT",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2",
+    "sequelize": "^6.37.5",
+    "sqlite3": "^5.1.7"
+  }
+}

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录或注册</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+            body.dark-mode {
+                background-color: #333;
+                color: #fff;
+                transition: background-color 0.3s, color 0.3s; /* 添加平滑过渡 */
+            }
+
+                body.dark-mode input {
+                    background-color: #555;
+                    color: #fff;
+                    border: 1px solid #888;
+                }
+
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeInUp 0.5s forwards; /* 添加淡入和滑动动画 */
+        }
+
+            .container.dark-mode {
+                background: #444;
+            }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeIn 0.6s forwards;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+            opacity: 0;
+            animation: fadeIn 0.6s forwards; /* 添加淡入动画 */
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.1s ease, background-color 0.3s;
+        }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+            button:active {
+                transform: scale(0.95);
+            }
+
+        .link {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+            .link a {
+                color: #007BFF;
+                text-decoration: none;
+            }
+
+                .link a:hover {
+                    text-decoration: underline;
+                }
+
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+            .theme-toggle:hover {
+                background-color: #0056b3;
+            }
+
+            .theme-toggle:active {
+                transform: scale(0.95);
+            }
+
+        /* 添加淡入和滑动效果的动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="theme-toggle" id="theme-toggle">D/B</button>
+
+    <div class="container" id="login-section">
+        <h1>登录</h1>
+        <form id="login-form">
+            <label for="login-username">用户名:</label>
+            <input type="text" id="login-username" name="username">
+
+            <label for="login-password">密码:</label>
+            <input type="password" id="login-password" name="password">
+
+            <button type="submit">登入</button>
+        </form>
+        <div class="link">
+            <a href="#" id="switch-to-register">还没有账户？现在注册</a>
+        </div>
+    </div>
+
+    <div class="container" id="register-section" style="display: none;">
+        <h1>注册新账户</h1>
+        <form id="register-form">
+            <label for="register-username">新的用户名:</label>
+            <input type="text" id="register-username" name="username" required placeholder="用户名必须为a-z, A-Z与0-9或'_'">
+
+            <label for="register-password">密码:</label>
+            <input type="password" id="register-password" name="password" required placeholder="密码格式要求与用户名一致">
+
+            <label for="register-confirm-password">确认密码:</label>
+            <input type="password" id="register-confirm-password" name="confirm-password" required placeholder="请确认您的密码">
+
+            <button type="submit">注册</button>
+        </form>
+        <div class="link">
+            <a href="#" id="switch-to-login">已经拥有账户？点击登录</a>
+        </div>
+    </div>
+
+    <script>
+        const loginSection = document.getElementById('login-section');
+        const registerSection = document.getElementById('register-section');
+        const switchToRegister = document.getElementById('switch-to-register');
+        const switchToLogin = document.getElementById('switch-to-login');
+        const themeToggleButton = document.getElementById('theme-toggle');
+
+        // Switching between Login and Register views
+        switchToRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginSection.style.display = 'none';
+            registerSection.style.display = 'block';
+        });
+
+        switchToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerSection.style.display = 'none';
+            loginSection.style.display = 'block';
+        });
+
+        // Regular expressions for validation
+        const usernameRegex = /^[a-zA-Z0-9_]+$/;
+        const passwordRegex = /^[a-zA-Z0-9_]+$/;
+
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message); // 将字符串编码为 UTF-8 字节数组
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer); // 生成哈希值
+            const hashArray = Array.from(new Uint8Array(hashBuffer)); // 将哈希值转换为数组
+            const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join(''); // 转换为十六进制字符串
+            return hashHex;
+        }
+
+        // Function to hash the password using SHA-256
+        async function hashPassword(password) {
+            if (!password) {
+                console.error("密码不能为空！");
+                return;
+            }
+            try {
+                const hashed = await sha256(password);
+                return hashed;
+            } catch (error) {
+                console.error("哈希处理出错", error);
+            }
+        }
+
+        // Handle Login form submission
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            if (!usernameRegex.test(username)) {
+                alert('用户名格式不正确');
+                return;
+            }
+
+            if (!passwordRegex.test(password)) {
+                alert('密码格式不正确');
+                return;
+            }
+
+            const hashedPassword = await hashPassword(password);
+
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, hashedPassword })
+            });
+
+            if (response.status === 200) {
+                alert('登录成功');
+                window.location.href = '/index.html';
+            } else if (response.status === 401) {
+                alert('错误的用户名或密码');
+            } else {
+                alert('未知错误' + response.status);
+            }
+        });
+
+        // Handle Register form submission
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+
+            if (!usernameRegex.test(username)) {
+                alert('用户名格式不正确');
+                return;
+            }
+
+            if (!passwordRegex.test(password)) {
+                alert('密码格式不正确');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert('两次密码输入不一致');
+                return;
+            }
+
+            const hashedPassword = await hashPassword(password);
+
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password: hashedPassword })
+            });
+
+            if (response.status === 200) {
+                alert('注册成功！');
+                window.location.href = '/login';
+            } else {
+                alert('注册失败，未知错误，请联系管理员');
+            }
+        });
+
+        // Toggle between light and dark theme
+        let isUserChangingTheme = false;
+
+        function detectSystemTheme() {
+            const systemDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (systemDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.querySelectorAll('.container').forEach(container => {
+                    container.classList.add('dark-mode');
+                });
+            }
+        }
+
+        detectSystemTheme();
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!isUserChangingTheme) {
+                if (e.matches) {
+                    document.body.classList.add('dark-mode');
+                    document.querySelectorAll('.container').forEach(container => {
+                        container.classList.add('dark-mode');
+                    });
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    document.querySelectorAll('.container').forEach(container => {
+                        container.classList.remove('dark-mode');
+                    });
+                }
+            }
+        });
+
+        themeToggleButton.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            document.querySelectorAll('.container').forEach(container => {
+                container.classList.toggle('dark-mode');
+            });
+            isUserChangingTheme = true;
+        });
+    </script>
+
+</body>
+</html>
